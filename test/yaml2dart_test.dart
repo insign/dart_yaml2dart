@@ -33,7 +33,7 @@ const author = 'John Doe';
 '''));
     } finally {
       // Clean up the temporary directory.
-      // await tempDir.delete(recursive: true);
+      await tempDir.delete(recursive: true);
     }
   });
 }
