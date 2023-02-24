@@ -1,3 +1,5 @@
+## v1.0.5
+- pub upgrade
 ## v1.0.4
 - README.md adjustment
 ## v1.0.3
