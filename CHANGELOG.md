@@ -1,3 +1,7 @@
+## v1.0.7
+- pub upgrade
+## v1.0.6
+- pub upgrade
 ## v1.0.5
 - pub upgrade
 ## v1.0.4
