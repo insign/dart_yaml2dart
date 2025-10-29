@@ -2,8 +2,8 @@
 const name = 'yaml2dart';
 const description =
     'Converts a YAML file to a Dart file containing global scope constants. Especially good for pubspec.yaml.';
-const version = '1.0.7';
+const version = '1.5.1';
 const repository = 'https://github.com/insign/dart_yaml2dart';
-const environment = '{sdk: >=2.19.2 <3.2.0}';
-const devDependencies = '{lints: ^3.0.0, path: ^1.8.3, test: ^1.21.0}';
-const dependencies = '{recase: ^4.1.0, yaml: ^3.1.1}';
+const environment = '{sdk: >=3.6.2 <4.0.0}';
+const devDependencies = '{lints: ^6.0.0, path: ^1.9.1, test: ^1.26.3}';
+const dependencies = '{recase: ^4.1.0, yaml: ^3.1.3}';

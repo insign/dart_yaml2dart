@@ -1,10 +1,10 @@
 name: yaml2dart
 description: Converts a YAML file to a Dart file containing global scope constants. Especially good for pubspec.yaml.
-version: 1.5.0
+version: 1.5.1
 repository: https://github.com/insign/dart_yaml2dart
 
 environment:
-  sdk: ">=3.6.2 <4.0.0"
+  sdk: '>=3.6.2 <4.0.0'
 
 dev_dependencies:
   lints: ^6.0.0

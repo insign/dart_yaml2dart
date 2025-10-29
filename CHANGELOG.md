@@ -1,3 +1,5 @@
+## v1.5.1
+- update dart version and dependencies
 ## v1.3.0
 - pub upgrade after years
 ## v1.0.7
