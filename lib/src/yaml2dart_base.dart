@@ -30,10 +30,28 @@ class Yaml2Dart {
     // Write each key-value pair in the YAML file as a Dart constant.
     yaml.forEach((key, value) {
       key = ReCase(key).camelCase;
-      buffer.writeln('const $key = \'$value\';');
+      buffer.writeln('const $key = ${_toDartCode(value)};');
     });
 
     // Write the contents to the output file.
     await output.writeAsString(buffer.toString());
+  }
+
+  String _toDartCode(dynamic value) {
+    if (value is String) {
+      return "'${value.replaceAll("'", "\\'")}'";
+    } else if (value is num || value is bool) {
+      return value.toString();
+    } else if (value is List) {
+      final elements = value.map((e) => _toDartCode(e)).join(', ');
+      return 'const [$elements]';
+    } else if (value is Map) {
+      final entries = value.entries
+          .map((e) => "'${e.key}': ${_toDartCode(e.value)}")
+          .join(', ');
+      return 'const {$entries}';
+    } else {
+      return "'$value'";
+    }
   }
 }
