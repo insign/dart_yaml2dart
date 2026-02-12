@@ -17,6 +17,11 @@ void main() {
         title: My App
         version: 1.2.3
         author: John Doe
+        build: 100
+        enabled: true
+        pi: 3.14
+        features: ["dark_mode", "beta"]
+        config: {timeout: 3000}
 ''');
 
       // Convert the YAML file to a Dart file.
@@ -26,11 +31,17 @@ void main() {
       // Verify that the output Dart file exists and has the correct contents.
       final outputFile = File(outputPath);
       expect(await outputFile.exists(), isTrue);
+      // jsonEncode produces double quotes for strings and standard JSON format for lists/maps.
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const title = "My App";
+const version = "1.2.3";
+const author = "John Doe";
+const build = 100;
+const enabled = true;
+const pi = 3.14;
+const features = ["dark_mode","beta"];
+const config = {"timeout":3000};
 '''));
     } finally {
       // Clean up the temporary directory.
