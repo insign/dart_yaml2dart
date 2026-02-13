@@ -28,12 +28,48 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const title = "My App";
+const version = "1.2.3";
+const author = "John Doe";
 '''));
     } finally {
       // Clean up the temporary directory.
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('Converts mixed YAML types to Dart constants', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_mixed_');
+    final inputPath = path.join(tempDir.path, 'mixed_input.yaml');
+    final outputPath = path.join(tempDir.path, 'mixed_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        count: 42
+        ratio: 3.14
+        isEnabled: true
+        items:
+          - one
+          - two
+        config:
+          debug: false
+          max: 100
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.readAsString(), equals('''
+${converter.warning}
+const count = 42;
+const ratio = 3.14;
+const isEnabled = true;
+const items = ["one","two"];
+const config = {"debug":false,"max":100};
+'''));
+    } finally {
       await tempDir.delete(recursive: true);
     }
   });
