@@ -15,7 +15,7 @@ void main() {
       final inputFile = File(inputPath);
       await inputFile.writeAsString('''
         title: My App
-        version: 1.2.3
+        version: "1.2.3"
         author: John Doe
 ''');
 
@@ -28,12 +28,68 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const title = "My App";
+const version = "1.2.3";
+const author = "John Doe";
 '''));
     } finally {
       // Clean up the temporary directory.
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('Converts complex YAML types to Dart constants', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_complex_test_');
+    final inputPath = path.join(tempDir.path, 'complex_input.yaml');
+    final outputPath = path.join(tempDir.path, 'complex_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        count: 42
+        pi: 3.14
+        is_awesome: true
+        features:
+          - fast
+          - reliable
+        config:
+          debug: false
+          timeout: 100
+        special: "Price: \$10"
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      final content = await outputFile.readAsString();
+
+      // Check for existence and basic structure
+      expect(await outputFile.exists(), isTrue);
+
+      // We expect JSON-encoded values with indentation.
+      // Note: JsonEncoder uses 2-space indentation.
+      // List and Map will be spread across lines.
+
+      final expectedOutput = '''
+${converter.warning}
+const count = 42;
+const pi = 3.14;
+const isAwesome = true;
+const features = [
+  "fast",
+  "reliable"
+];
+const config = {
+  "debug": false,
+  "timeout": 100
+};
+const special = "Price: \\\$10";
+''';
+
+      expect(content, equals(expectedOutput));
+
+    } finally {
       await tempDir.delete(recursive: true);
     }
   });
