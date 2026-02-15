@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:path/path.dart' as path;
@@ -28,12 +29,52 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const title = "My App";
+const version = "1.2.3";
+const author = "John Doe";
 '''));
     } finally {
       // Clean up the temporary directory.
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('Converts YAML mixed types to Dart constants', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_mixed_test_');
+    final inputPath = path.join(tempDir.path, 'mixed_input.yaml');
+    final outputPath = path.join(tempDir.path, 'mixed_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+count: 10
+isEnabled: true
+ratio: 3.14
+items:
+  - one
+  - two
+config:
+  debug: false
+quote: "It's me"
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+
+      // Note: jsonEncode produces compact JSON.
+      expect(await outputFile.readAsString(), equals('''
+${converter.warning}
+const count = 10;
+const isEnabled = true;
+const ratio = 3.14;
+const items = ["one","two"];
+const config = {"debug":false};
+const quote = "It's me";
+'''));
+    } finally {
       await tempDir.delete(recursive: true);
     }
   });
