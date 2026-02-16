@@ -28,12 +28,52 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const title = "My App";
+const version = "1.2.3";
+const author = "John Doe";
 '''));
     } finally {
       // Clean up the temporary directory.
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('Converts mixed YAML types to typed Dart constants', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_types_test_');
+    final inputPath = path.join(tempDir.path, 'types_input.yaml');
+    final outputPath = path.join(tempDir.path, 'types_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        count: 42
+        ratio: 3.14
+        isEnabled: true
+        items:
+          - fast
+          - reliable
+        config:
+          debug: false
+          timeout: 100
+        price: "Cost: \$10"
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+
+      // Verify typed constants
+      expect(content, contains('const count = 42;'));
+      expect(content, contains('const ratio = 3.14;'));
+      expect(content, contains('const isEnabled = true;'));
+      expect(content, contains('const items = ["fast","reliable"];'));
+      expect(content, contains('const config = {"debug":false,"timeout":100};'));
+      // Verify $ escaping
+      expect(content, contains(r'const price = "Cost: \$10";'));
+    } finally {
       await tempDir.delete(recursive: true);
     }
   });
