@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:yaml/yaml.dart';
 import 'package:recase/recase.dart';
+import 'dart:convert';
 
 /// A utility class for converting YAML files to Dart constants.
 class Yaml2Dart {
@@ -30,7 +31,14 @@ class Yaml2Dart {
     // Write each key-value pair in the YAML file as a Dart constant.
     yaml.forEach((key, value) {
       key = ReCase(key).camelCase;
-      buffer.writeln('const $key = \'$value\';');
+      try {
+        final encoded = jsonEncode(value);
+        buffer.writeln('const $key = $encoded;');
+      } catch (e) {
+        // Fallback for types jsonEncode cannot handle
+        final stringValue = value.toString().replaceAll("'", "\\'");
+        buffer.writeln('const $key = \'$stringValue\';');
+      }
     });
 
     // Write the contents to the output file.
