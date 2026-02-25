@@ -28,9 +28,9 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const title = "My App";
+const version = "1.2.3";
+const author = "John Doe";
 '''));
     } finally {
       // Clean up the temporary directory.

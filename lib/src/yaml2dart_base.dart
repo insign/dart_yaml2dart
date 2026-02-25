@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:yaml/yaml.dart';
 import 'package:recase/recase.dart';
@@ -28,12 +29,24 @@ class Yaml2Dart {
     buffer.writeln(warning);
 
     // Write each key-value pair in the YAML file as a Dart constant.
-    yaml.forEach((key, value) {
-      key = ReCase(key).camelCase;
-      buffer.writeln('const $key = \'$value\';');
-    });
+    if (yaml is Map) {
+      yaml.forEach((key, value) {
+        key = ReCase(key.toString()).camelCase;
+        buffer.writeln('const $key = ${jsonEncode(_convertValue(value))};');
+      });
+    }
 
     // Write the contents to the output file.
     await output.writeAsString(buffer.toString());
+  }
+
+  dynamic _convertValue(dynamic value) {
+    if (value is YamlMap) {
+      return value.map((key, value) => MapEntry(key.toString(), _convertValue(value)));
+    } else if (value is YamlList) {
+      return value.map((element) => _convertValue(element)).toList();
+    } else {
+      return value;
+    }
   }
 }
