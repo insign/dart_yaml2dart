@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:yaml/yaml.dart';
 import 'package:recase/recase.dart';
 
@@ -14,6 +15,19 @@ class Yaml2Dart {
   /// [outputFilePath] is the path to the output Dart file.
   Yaml2Dart(this.inputFilePath, this.outputFilePath);
 
+  dynamic _convertNode(dynamic node) {
+    if (node is YamlMap) {
+      final map = <String, dynamic>{};
+      node.forEach((key, value) {
+        map[key.toString()] = _convertNode(value);
+      });
+      return map;
+    } else if (node is YamlList) {
+      return node.map((e) => _convertNode(e)).toList();
+    }
+    return node;
+  }
+
   /// Converts the input YAML file to a Dart file containing constants.
   Future<void> convert() async {
     // Read the YAML file.
@@ -27,11 +41,29 @@ class Yaml2Dart {
 
     buffer.writeln(warning);
 
-    // Write each key-value pair in the YAML file as a Dart constant.
-    yaml.forEach((key, value) {
-      key = ReCase(key).camelCase;
-      buffer.writeln('const $key = \'$value\';');
-    });
+    if (yaml is Map) {
+      // Write each key-value pair in the YAML file as a Dart constant.
+      yaml.forEach((key, value) {
+        final camelCaseKey = ReCase(key.toString()).camelCase;
+        final dartValue = _convertNode(value);
+
+        String type = '';
+        if (dartValue is String) {
+          type = 'String ';
+        } else if (dartValue is num) {
+          type = 'num ';
+        } else if (dartValue is bool) {
+          type = 'bool ';
+        } else if (dartValue is List) {
+          type = 'List ';
+        } else if (dartValue is Map) {
+          type = 'Map ';
+        }
+
+        final encodedValue = jsonEncode(dartValue);
+        buffer.writeln('const $type$camelCaseKey = $encodedValue;');
+      });
+    }
 
     // Write the contents to the output file.
     await output.writeAsString(buffer.toString());

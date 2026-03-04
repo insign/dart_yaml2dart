@@ -14,9 +14,16 @@ void main() {
       // Write the input YAML file.
       final inputFile = File(inputPath);
       await inputFile.writeAsString('''
-        title: My App
-        version: 1.2.3
-        author: John Doe
+title: My App
+version: 1.2.3
+author: John Doe
+count: 5
+isActive: true
+items:
+  - a
+  - b
+config:
+  key: value
 ''');
 
       // Convert the YAML file to a Dart file.
@@ -28,9 +35,13 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const String title = "My App";
+const String version = "1.2.3";
+const String author = "John Doe";
+const num count = 5;
+const bool isActive = true;
+const List items = ["a","b"];
+const Map config = {"key":"value"};
 '''));
     } finally {
       // Clean up the temporary directory.
