@@ -17,6 +17,14 @@ void main() {
         title: My App
         version: 1.2.3
         author: John Doe
+        price: "100\$"
+        is_active: true
+        count: 42
+        data:
+          key1: val1
+        items:
+          - 1
+          - 2
 ''');
 
       // Convert the YAML file to a Dart file.
@@ -28,9 +36,14 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = 'My App';
-const version = '1.2.3';
-const author = 'John Doe';
+const String title = 'My App';
+const String version = '1.2.3';
+const String author = 'John Doe';
+const String price = '100\\\$';
+const bool isActive = true;
+const num count = 42;
+const Map data = {"key1":"val1"};
+const List items = [1,2];
 '''));
     } finally {
       // Clean up the temporary directory.

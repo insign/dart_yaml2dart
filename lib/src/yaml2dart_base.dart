@@ -1,6 +1,25 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:yaml/yaml.dart';
 import 'package:recase/recase.dart';
+
+Object? _convertNode(Object? node) {
+  if (node is YamlMap) {
+    return node.map((key, value) => MapEntry(key.toString(), _convertNode(value)));
+  } else if (node is YamlList) {
+    return node.map(_convertNode).toList();
+  }
+  return node;
+}
+
+String _getType(Object? value) {
+  if (value is String) return 'String';
+  if (value is num) return 'num';
+  if (value is bool) return 'bool';
+  if (value is List) return 'List';
+  if (value is Map) return 'Map';
+  return 'dynamic';
+}
 
 /// A utility class for converting YAML files to Dart constants.
 class Yaml2Dart {
@@ -29,8 +48,19 @@ class Yaml2Dart {
 
     // Write each key-value pair in the YAML file as a Dart constant.
     yaml.forEach((key, value) {
-      key = ReCase(key).camelCase;
-      buffer.writeln('const $key = \'$value\';');
+      final camelKey = ReCase(key.toString()).camelCase;
+      final convertedValue = _convertNode(value);
+      final type = _getType(convertedValue);
+
+      String serializedValue;
+      if (convertedValue is String) {
+        final escapedString = convertedValue.replaceAll(r'\', r'\\').replaceAll("'", r"\'").replaceAll(r'$', r'\$').replaceAll('\n', r'\n').replaceAll('\r', r'\r');
+        serializedValue = "'$escapedString'";
+      } else {
+        serializedValue = jsonEncode(convertedValue);
+      }
+
+      buffer.writeln('const $type $camelKey = $serializedValue;');
     });
 
     // Write the contents to the output file.
