@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:yaml/yaml.dart';
 import 'package:recase/recase.dart';
@@ -14,6 +15,30 @@ class Yaml2Dart {
   /// [outputFilePath] is the path to the output Dart file.
   Yaml2Dart(this.inputFilePath, this.outputFilePath);
 
+  dynamic _convertNode(dynamic node) {
+    if (node is YamlMap) {
+      return node.map((key, value) => MapEntry(key.toString(), _convertNode(value)));
+    } else if (node is YamlList) {
+      return node.map(_convertNode).toList();
+    }
+    return node;
+  }
+
+  String _formatValue(dynamic value) {
+    if (value is String) {
+      final escaped = value.replaceAll(r'\', r'\\').replaceAll("'", r"\'").replaceAll(r'$', r'\$');
+      return "'$escaped'";
+    } else if (value is num || value is bool) {
+      return value.toString();
+    } else if (value == null) {
+      return 'null';
+    } else {
+      final plainObject = _convertNode(value);
+      final jsonString = jsonEncode(plainObject);
+      return jsonString.replaceAll(r'$', r'\$');
+    }
+  }
+
   /// Converts the input YAML file to a Dart file containing constants.
   Future<void> convert() async {
     // Read the YAML file.
@@ -27,11 +52,14 @@ class Yaml2Dart {
 
     buffer.writeln(warning);
 
-    // Write each key-value pair in the YAML file as a Dart constant.
-    yaml.forEach((key, value) {
-      key = ReCase(key).camelCase;
-      buffer.writeln('const $key = \'$value\';');
-    });
+    if (yaml is YamlMap) {
+      // Write each key-value pair in the YAML file as a Dart constant.
+      yaml.forEach((key, value) {
+        final keyString = ReCase(key.toString()).camelCase;
+        final formattedValue = _formatValue(value);
+        buffer.writeln('const $keyString = $formattedValue;');
+      });
+    }
 
     // Write the contents to the output file.
     await output.writeAsString(buffer.toString());

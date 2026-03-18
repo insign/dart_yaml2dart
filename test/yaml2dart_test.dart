@@ -17,6 +17,15 @@ void main() {
         title: My App
         version: 1.2.3
         author: John Doe
+        numValue: 42
+        boolValue: true
+        strWithQuote: "it's"
+        strWithDollar: "\$10"
+        strWithBackslash: "a\\\\b"
+        nestedList: [1, "two\$", 3.0]
+        nestedMap:
+          key1: "val\$1"
+          key2: 2
 ''');
 
       // Convert the YAML file to a Dart file.
@@ -31,6 +40,13 @@ ${converter.warning}
 const title = 'My App';
 const version = '1.2.3';
 const author = 'John Doe';
+const numValue = 42;
+const boolValue = true;
+const strWithQuote = 'it\\'s';
+const strWithDollar = '\\\$10';
+const strWithBackslash = 'a\\\\b';
+const nestedList = [1,"two\\\$",3.0];
+const nestedMap = {"key1":"val\\\$1","key2":2};
 '''));
     } finally {
       // Clean up the temporary directory.
