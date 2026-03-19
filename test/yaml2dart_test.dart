@@ -28,9 +28,9 @@ void main() {
       expect(await outputFile.exists(), isTrue);
       expect(await outputFile.readAsString(), equals('''
 ${converter.warning}
-const title = "My App";
-const version = "1.2.3";
-const author = "John Doe";
+const title = 'My App';
+const version = '1.2.3';
+const author = 'John Doe';
 '''));
     } finally {
       // Clean up the temporary directory.
@@ -39,7 +39,8 @@ const author = "John Doe";
   });
 
   test('Converts mixed YAML types to typed Dart constants', () async {
-    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_types_test_');
+    final tempDir =
+        await Directory.systemTemp.createTemp('yaml2dart_types_test_');
     final inputPath = path.join(tempDir.path, 'types_input.yaml');
     final outputPath = path.join(tempDir.path, 'types_output.dart');
 
@@ -55,6 +56,8 @@ const author = "John Doe";
         config:
           debug: false
           timeout: 100
+        strWithQuote: "it's"
+        strWithBackslash: 'a\\b'
         price: "Cost: \$10"
 ''');
 
@@ -70,9 +73,12 @@ const author = "John Doe";
       expect(content, contains('const ratio = 3.14;'));
       expect(content, contains('const isEnabled = true;'));
       expect(content, contains('const items = ["fast","reliable"];'));
-      expect(content, contains('const config = {"debug":false,"timeout":100};'));
+      expect(
+          content, contains('const config = {"debug":false,"timeout":100};'));
+      expect(content, contains(r"const strWithQuote = 'it\'s';"));
+      expect(content, contains(r"const strWithBackslash = 'a\\b';"));
       // Verify $ escaping
-      expect(content, contains(r'const price = "Cost: \$10";'));
+      expect(content, contains(r"const price = 'Cost: \$10';"));
     } finally {
       await tempDir.delete(recursive: true);
     }
