@@ -69,6 +69,7 @@ class Yaml2Dart {
     }
 
     // Write the contents to the output file.
+    await output.parent.create(recursive: true);
     await output.writeAsString(buffer.toString());
   }
 }

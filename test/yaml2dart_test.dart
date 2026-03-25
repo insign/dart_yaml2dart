@@ -83,4 +83,27 @@ const author = 'John Doe';
       await tempDir.delete(recursive: true);
     }
   });
+
+  test('Creates output directories if they do not exist', () async {
+    final tempDir =
+        await Directory.systemTemp.createTemp('yaml2dart_dir_test_');
+    final inputPath = path.join(tempDir.path, 'dir_input.yaml');
+    final outputPath = path.join(tempDir.path, 'nested', 'missing', 'dir_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        title: App
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      expect(await outputFile.readAsString(), contains("const title = 'App';"));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
 }
