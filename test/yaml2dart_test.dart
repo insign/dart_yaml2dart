@@ -83,4 +83,26 @@ const author = 'John Doe';
       await tempDir.delete(recursive: true);
     }
   });
+
+  test('Creates output directories if they do not exist', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_dirs_test_');
+    final inputPath = path.join(tempDir.path, 'input.yaml');
+    final outputDirPath = path.join(tempDir.path, 'nested', 'dirs', 'here');
+    final outputPath = path.join(outputDirPath, 'output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('name: TestApp\n');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+      expect(content, contains("const name = 'TestApp';"));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
 }
