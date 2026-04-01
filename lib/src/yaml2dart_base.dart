@@ -57,6 +57,9 @@ class Yaml2Dart {
 
     // Create the output Dart file.
     final output = File(outputFilePath);
+    if (!await output.parent.exists()) {
+      await output.parent.create(recursive: true);
+    }
     final buffer = StringBuffer();
 
     buffer.writeln(warning);
