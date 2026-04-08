@@ -48,6 +48,16 @@ class Yaml2Dart {
     return jsonEncode(plainObject).replaceAll(r'$', r'\$');
   }
 
+  static const _dartKeywords = {
+    'abstract', 'as', 'assert', 'async', 'await', 'base', 'break', 'case', 'catch', 'class',
+    'const', 'continue', 'covariant', 'default', 'deferred', 'do', 'dynamic', 'else', 'enum',
+    'export', 'extends', 'extension', 'external', 'factory', 'false', 'final', 'finally',
+    'for', 'get', 'if', 'implements', 'import', 'in', 'interface', 'is', 'late', 'library',
+    'mixin', 'new', 'null', 'on', 'operator', 'part', 'required', 'rethrow', 'return',
+    'sealed', 'set', 'show', 'static', 'super', 'switch', 'sync', 'this', 'throw', 'true',
+    'try', 'type', 'typedef', 'var', 'void', 'when', 'with', 'while', 'yield',
+  };
+
   /// Converts the input YAML file to a Dart file containing constants.
   Future<void> convert() async {
     // Read the YAML file.
@@ -66,7 +76,13 @@ class Yaml2Dart {
 
     if (yaml is YamlMap) {
       yaml.forEach((key, value) {
-        final keyString = ReCase(key.toString()).camelCase;
+        var keyString = ReCase(key.toString()).camelCase;
+        if (_dartKeywords.contains(keyString)) {
+          keyString = '${keyString}_';
+        }
+        if (RegExp(r'^[0-9]').hasMatch(keyString)) {
+          keyString = '\$$keyString';
+        }
         buffer.writeln('const $keyString = ${_formatValue(value)};');
       });
     }

@@ -105,4 +105,34 @@ const author = 'John Doe';
       await tempDir.delete(recursive: true);
     }
   });
+
+  test('Sanitizes invalid Dart identifiers', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_sanitize_test_');
+    final inputPath = path.join(tempDir.path, 'sanitize_input.yaml');
+    final outputPath = path.join(tempDir.path, 'sanitize_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        class: MyClass
+        default: MyDefault
+        1st_item: first
+        2ndItem: second
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+
+      expect(content, contains("const class_ = 'MyClass';"));
+      expect(content, contains("const default_ = 'MyDefault';"));
+      expect(content, contains("const \$1stItem = 'first';"));
+      expect(content, contains("const \$2ndItem = 'second';"));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
 }
