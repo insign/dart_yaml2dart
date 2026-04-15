@@ -105,4 +105,37 @@ const author = 'John Doe';
       await tempDir.delete(recursive: true);
     }
   });
+
+  test('Sanitizes Dart reserved keywords and keys starting with digits', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_sanitize_test_');
+    final inputPath = path.join(tempDir.path, 'sanitize_input.yaml');
+    final outputPath = path.join(tempDir.path, 'sanitize_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        class: my_class
+        default: true
+        1st_item: first
+        _private: private
+        return: 10
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+
+      // Verify sanitized constants
+      expect(content, contains("const class_ = 'my_class';"));
+      expect(content, contains("const default_ = true;"));
+      expect(content, contains("const \$1stItem = 'first';"));
+      expect(content, contains("const private = 'private';"));
+      expect(content, contains("const return_ = 10;"));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
 }

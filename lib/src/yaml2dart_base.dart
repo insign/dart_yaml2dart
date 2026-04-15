@@ -64,9 +64,22 @@ class Yaml2Dart {
 
     buffer.writeln(warning);
 
+    const dartReservedKeywords = {
+      'assert', 'break', 'case', 'catch', 'class', 'const', 'continue',
+      'default', 'do', 'else', 'enum', 'extends', 'false', 'final',
+      'finally', 'for', 'if', 'in', 'is', 'new', 'null', 'rethrow',
+      'return', 'super', 'switch', 'this', 'throw', 'true', 'try',
+      'var', 'void', 'while', 'with',
+    };
+
     if (yaml is YamlMap) {
       yaml.forEach((key, value) {
-        final keyString = ReCase(key.toString()).camelCase;
+        var keyString = ReCase(key.toString()).camelCase;
+        if (dartReservedKeywords.contains(keyString)) {
+          keyString = '${keyString}_';
+        } else if (keyString.startsWith(RegExp(r'[0-9]'))) {
+          keyString = '\$$keyString';
+        }
         buffer.writeln('const $keyString = ${_formatValue(value)};');
       });
     }
