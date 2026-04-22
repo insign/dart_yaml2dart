@@ -106,6 +106,50 @@ const author = 'John Doe';
     }
   });
 
+  test('Sanitizes keys with special characters to prevent invalid Dart syntax', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_special_chars_test_');
+    final inputPath = path.join(tempDir.path, 'special_chars_input.yaml');
+    final outputPath = path.join(tempDir.path, 'special_chars_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        my@key: 1
+        my+key: 2
+        ___: 3
+        " ": 4
+        "   test   ": 5
+        123!@#: 6
+        foo-bar: 7
+        my.key: 8
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+
+      // Verify sanitized constants
+      expect(content, contains("const mykey = 1;"));
+      // '___' and ' ' are skipped, so there should be NO assignment of 3 or 4
+      expect(content, isNot(contains("= 3;")));
+      expect(content, isNot(contains("= 4;")));
+      expect(content, contains("const test = 5;"));
+      expect(content, contains("const \$123 = 6;"));
+      expect(content, contains("const fooBar = 7;"));
+      expect(content, contains("const myKey = 8;"));
+
+      // Ensure no invalid variables like `const  =` or `const @` were generated
+      expect(content, isNot(contains("const  =")));
+      expect(content, isNot(contains("@")));
+      expect(content, isNot(contains("+")));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
+
   test('Sanitizes Dart reserved keywords and keys starting with digits', () async {
     final tempDir = await Directory.systemTemp.createTemp('yaml2dart_sanitize_test_');
     final inputPath = path.join(tempDir.path, 'sanitize_input.yaml');

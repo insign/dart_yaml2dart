@@ -75,6 +75,12 @@ class Yaml2Dart {
     if (yaml is YamlMap) {
       yaml.forEach((key, value) {
         var keyString = ReCase(key.toString()).camelCase;
+        keyString = keyString.replaceAll(RegExp(r'[^a-zA-Z0-9_$]'), '');
+
+        if (keyString.isEmpty) {
+          return;
+        }
+
         if (dartReservedKeywords.contains(keyString)) {
           keyString = '${keyString}_';
         } else if (keyString.startsWith(RegExp(r'[0-9]'))) {
