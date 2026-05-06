@@ -182,4 +182,31 @@ const author = 'John Doe';
       await tempDir.delete(recursive: true);
     }
   });
+
+  test('Avoids unnecessary escaping of double quotes in strings', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_quotes_test_');
+    final inputPath = path.join(tempDir.path, 'quotes_input.yaml');
+    final outputPath = path.join(tempDir.path, 'quotes_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        json_string: '{"key": "value"}'
+        html_string: '<div class="test">content</div>'
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+
+      // Verify that double quotes are not escaped with backslashes
+      expect(content, contains('const jsonString = \'{"key": "value"}\';'));
+      expect(content, contains('const htmlString = \'<div class="test">content</div>\';'));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
 }

@@ -33,6 +33,7 @@ class Yaml2Dart {
       final encoded = jsonEncode(value);
       final escaped = encoded
           .substring(1, encoded.length - 1)
+          .replaceAll(r'\"', '"')
           .replaceAll("'", r"\'")
           .replaceAll(r'$', r'\$');
       return "'$escaped'";
