@@ -34,7 +34,8 @@ class Yaml2Dart {
       final escaped = encoded
           .substring(1, encoded.length - 1)
           .replaceAll("'", r"\'")
-          .replaceAll(r'$', r'\$');
+          .replaceAll(r'$', r'\$')
+          .replaceAll(r'\"', '"');
       return "'$escaped'";
     }
     if (value is num || value is bool) {

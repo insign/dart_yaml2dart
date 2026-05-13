@@ -150,6 +150,33 @@ const author = 'John Doe';
     }
   });
 
+  test('Does not unnecessarily escape double quotes in string constants', () async {
+    final tempDir = await Directory.systemTemp.createTemp('yaml2dart_quotes_test_');
+    final inputPath = path.join(tempDir.path, 'quotes_input.yaml');
+    final outputPath = path.join(tempDir.path, 'quotes_output.dart');
+
+    try {
+      final inputFile = File(inputPath);
+      await inputFile.writeAsString('''
+        message: 'say "hello"'
+        other: "it's \\"ok\\""
+''');
+
+      final converter = Yaml2Dart(inputPath, outputPath);
+      await converter.convert();
+
+      final outputFile = File(outputPath);
+      expect(await outputFile.exists(), isTrue);
+      final content = await outputFile.readAsString();
+
+      // Verify strings do not contain unnecessarily escaped double quotes
+      expect(content, contains("const message = 'say \"hello\"';"));
+      expect(content, contains("const other = 'it\\'s \"ok\"';"));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
+
   test('Sanitizes Dart reserved keywords and keys starting with digits', () async {
     final tempDir = await Directory.systemTemp.createTemp('yaml2dart_sanitize_test_');
     final inputPath = path.join(tempDir.path, 'sanitize_input.yaml');
