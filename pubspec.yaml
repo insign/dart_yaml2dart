@@ -3,6 +3,9 @@ description: Converts a YAML file to a Dart file containing global scope constan
 version: 1.5.1
 repository: https://github.com/insign/dart_yaml2dart
 
+executables:
+  yaml2dart:
+
 environment:
   sdk: '>=3.6.2 <4.0.0'
 
