@@ -2,6 +2,21 @@
 
 Converts a YAML file to a Dart file containing global scope constants. It allows developers to easily use YAML data in their Dart projects by generating a separate file with all the YAML data as constants. Especially good for `pubspec.yaml`.
 
+## CLI Usage
+
+To use it globally:
+
+```bash
+dart pub global activate yaml2dart
+yaml2dart pubspec.yaml pubspec.dart
+```
+
+Or run it without installing globally:
+
+```bash
+dart run yaml2dart pubspec.yaml pubspec.dart
+```
+
 ## Getting started
 
 ```dart
