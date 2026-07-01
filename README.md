@@ -4,11 +4,30 @@ Converts a YAML file to a Dart file containing global scope constants. It allows
 
 ## Getting started
 
-```dart
+```bash
 dart pub add yaml2dart
 ```
 
 ## Usage
+
+### Command Line (CLI)
+
+The easiest way to use `yaml2dart` is directly from the command line.
+
+```bash
+dart run yaml2dart example.yaml lib/example_constants.dart
+```
+
+Alternatively, you can activate it globally:
+
+```bash
+dart pub global activate yaml2dart
+yaml2dart example.yaml lib/example_constants.dart
+```
+
+### In Code
+
+You can also use it programmatically in your Dart scripts.
 
 Assuming that the `example.yaml` file contains the following:
 

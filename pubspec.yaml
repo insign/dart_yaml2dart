@@ -14,3 +14,6 @@ dev_dependencies:
 dependencies:
   recase: ^4.1.0
   yaml: ^3.1.3
+
+executables:
+  yaml2dart:
