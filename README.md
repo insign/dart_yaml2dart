@@ -8,7 +8,21 @@ Converts a YAML file to a Dart file containing global scope constants. It allows
 dart pub add yaml2dart
 ```
 
-## Usage
+## CLI Usage
+
+You can run the tool from the command line after adding it as a dependency or globally:
+
+```sh
+dart run yaml2dart <input.yaml> <output.dart>
+```
+
+Example:
+
+```sh
+dart run yaml2dart pubspec.yaml lib/constants.dart
+```
+
+## Programmatic Usage
 
 Assuming that the `example.yaml` file contains the following:
 
